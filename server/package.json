@@ -1,0 +1,44 @@
+{
+  "name": "server",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "concurrently \"npx convex dev\" \"nodemon\" \"npx inngest-cli@latest dev -u http://localhost:3001/api/inngest\" --names \"convex,express,inngest\" --prefix-colors \"cyan,green,yellow\"",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "type-check": "tsc --noEmit",
+    "inngest:dev": "npx inngest-cli@latest dev -u http://localhost:3001/api/inngest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.64",
+    "ai": "^6.0.141",
+    "convex": "^1.34.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
+    "inngest": "^4.1.0",
+    "morgan": "^1.10.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^25.5.0",
+    "concurrently": "^9.2.1",
+    "eslint": "^10.1.0",
+    "nodemon": "^3.1.14",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.2"
+  }
+}
