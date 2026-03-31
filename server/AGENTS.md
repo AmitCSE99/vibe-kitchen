@@ -84,6 +84,54 @@ When implementing a feature, follow this EXACT order:
 
 ---
 
+## Testing Protocol
+
+### Mandatory: Run All Tests After Every Feature
+
+After completing all 7 steps of the Feature Development Protocol, you MUST:
+
+1. Run `npm run test:unit` — all unit tests must pass
+2. Run `npm run test:integration` — all integration tests must pass
+3. If any test fails: fix the implementation (or the test if the test is incorrect)
+4. **A task is NOT complete while any test is failing**
+
+### Test File Placement
+
+| Source file | Test file |
+| ----------- | --------- |
+| `src/utils/Foo.ts` | `tests/unit/utils/Foo.test.ts` |
+| `src/middlewares/Foo.ts` | `tests/unit/middlewares/Foo.test.ts` |
+| `src/services/Foo.ts` | `tests/unit/services/Foo.test.ts` |
+| `src/prompts/Foo.ts` | `tests/unit/prompts/Foo.test.ts` |
+| Route-level HTTP | `tests/integration/<resource>/<resource>.routes.test.ts` |
+
+### Mocking Rules
+
+- Unit tests mock the **layer directly below** the subject (service tests mock the model, not Convex)
+- Integration tests mock at the **config boundary**: `../../../src/config/convex.js`, `../../../src/config/inngest.js`, and `inngest/express`
+- Never import real Convex or Anthropic clients in tests
+
+### ESM Import Convention in Tests
+
+All imports in test files referencing `src/` must use `.js` extensions:
+
+```ts
+// Correct
+import { ApiError } from "../../../src/utils/ApiError.js";
+
+// Wrong — will fail to resolve under NodeNext
+import { ApiError } from "../../../src/utils/ApiError";
+```
+
+### When Adding a New Feature
+
+1. Add unit test file(s) for new service / utils / middleware
+2. Use or extend `tests/helpers/factories.ts` for test data
+3. Add integration test cases for new routes
+4. Run `npm run test:coverage` — maintain ≥70% thresholds across statements, branches, functions, and lines
+
+---
+
 ## DO’s (Mandatory Best Practices)
 
 ### Architecture
