@@ -19,8 +19,11 @@ export const CreateRecipeSchema = z.object({
 
 export const UpdateRecipeSchema = CreateRecipeSchema.partial();
 
+export const CreateRecipesArraySchema = z.array(CreateRecipeSchema).length(4);
+
 export type CreateRecipeDto = z.infer<typeof CreateRecipeSchema>;
 export type UpdateRecipeDto = z.infer<typeof UpdateRecipeSchema>;
+export type CreateRecipesArrayDto = z.infer<typeof CreateRecipesArraySchema>;
 
 export const MoodSchema = z.enum(["cozy", "highEnergy", "light"]);
 export type Mood = z.infer<typeof MoodSchema>;

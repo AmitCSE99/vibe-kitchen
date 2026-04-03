@@ -17,22 +17,28 @@ const DIETARY_RULES: Record<string, string> = {
   none: "No dietary restrictions.",
 };
 
+function sanitize(input: string): string {
+  return input.replace(/[\r\n\u0000-\u001F]/g, " ").trim();
+}
+
 export function buildRecipePrompt(
   currentMood: Mood,
   ingredients: string[],
   dietaryPreferences: string,
 ): string {
+  const safeDietary = sanitize(dietaryPreferences);
+  const safeIngredients = ingredients.map(sanitize);
   const moodGuideline = MOOD_GUIDELINES[currentMood];
   const dietaryRule =
-    DIETARY_RULES[dietaryPreferences.toLowerCase()] ??
-    `Follow the "${dietaryPreferences}" dietary requirement strictly.`;
+    DIETARY_RULES[safeDietary.toLowerCase()] ??
+    `Follow the "${safeDietary}" dietary requirement strictly.`;
 
-  return `You are a professional Indian chef and nutritionist. Generate a single recipe based on the user's current mood, available ingredients, and dietary preferences. The recipe must be practical for a home cook in India — use commonly available Indian ingredients and cooking methods.
+  return `You are a professional Indian chef and nutritionist. Generate exactly 4 unique Indian recipes based on the user's current mood, available ingredients, and dietary preferences. Each recipe must be practical for a home cook in India — use commonly available Indian ingredients and cooking methods.
 
 ### User Context
 - **Mood**: ${currentMood}
-- **Available Ingredients**: ${ingredients.join(", ")}
-- **Dietary Preference**: ${dietaryPreferences}
+- **Available Ingredients**: ${safeIngredients.join(", ")}
+- **Dietary Preference**: ${safeDietary}
 
 ### Mood Guidance
 ${moodGuideline}
@@ -45,26 +51,37 @@ ${dietaryRule}
 2. The recipe must be achievable in a standard Indian home kitchen using common equipment: tawa, kadai, pressure cooker, or mixie.
 3. Calorie count must be realistic and calculated per serving.
 4. Tags must cover: mood, dietary preference, key ingredients, cuisine region (e.g. North Indian, South Indian), and meal type (breakfast/lunch/dinner/snack/dessert).
+5. Generate exactly 4 unique recipes with mandatory variety:
+   - Meal type: one breakfast, one lunch, one dinner, one snack or dessert
+   - Cooking method: vary across (e.g. pressure-cooked, tawa-fried, steamed, raw/no-cook)
+   - Difficulty level: aim for a spread — do not assign the same level to all 4
+   - Flavor profile: vary across spicy, tangy, sweet, and savory
+   - Do NOT repeat a title or primary cooking technique across the 4.
 
 ### Output Format
-Respond with a single valid JSON object only. No explanation, no markdown fences, no extra text — just the raw JSON.
+Respond with a single valid JSON array of exactly 4 objects. No explanation, no markdown fences, no extra text — just the raw JSON array.
 
-{
-  "title": "<creative, appetizing recipe name>",
-  "approxTimeToCook": <total time in minutes as a number>,
-  "difficultyLevel": "<easy | medium | hard>",
-  "ingredients": [
-    "<ingredient with quantity, e.g. '1 cup basmati rice'>",
-    ...
-  ],
-  "method": [
-    {
-      "heading": "<step heading, e.g. 'Prepare the tempering'>",
-      "description": "<detailed step description>"
-    },
-    ...
-  ],
-  "calories": <estimated kcal per serving as a number>,
-  "tags": ["<tag1>", "<tag2>", ...]
-}`;
+[
+  {
+    "title": "<creative, appetizing recipe name>",
+    "approxTimeToCook": <total time in minutes as a number>,
+    "difficultyLevel": "<easy | medium | hard>",
+    "ingredients": [
+      "<ingredient with quantity, e.g. '1 cup basmati rice'>",
+      ...
+    ],
+    "method": [
+      {
+        "heading": "<step heading, e.g. 'Prepare the tempering'>",
+        "description": "<detailed step description>"
+      },
+      ...
+    ],
+    "calories": <estimated kcal per serving as a number>,
+    "tags": ["<tag1>", "<tag2>", ...]
+  },
+  { ... },
+  { ... },
+  { ... }
+]`;
 }
